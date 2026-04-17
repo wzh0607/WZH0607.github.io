@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>信创工坊社团 | 校园No.1 成长型社团</title>
+<style>
+/* 全局重置与南孚风格核心变量 */
+:root {
+  --nanfu-black: #000000;
+  --nanfu-white: #ffffff;
+  --nanfu-gray: #f5f5f5;
+  --nanfu-dark-gray: #666666;
+  --nanfu-red: #d92121;
+  --nanfu-red-deep: #b81a1a;
+  --font-main: 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --transition-base: all 0.3s ease;
+  --transition-advanced: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-base: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: var(--font-main);
+  background-color: var(--nanfu-white);
+  color: var(--nanfu-black);
+  line-height: 1.4;
+  overflow-x: hidden;
+  opacity: 0;
+  animation: pageFadeIn 1s ease-out forwards;
+}
+@keyframes pageFadeIn {
+  to { opacity: 1; }
+}
+
+/* 粒子背景画布 */
+#nanfuParticles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* 首屏流动背景 */
+.hero-dynamic-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: linear-gradient(120deg, #000000, #222222, #d9212120, #000000);
+  background-size: 300% 300%;
+  animation: nanfuFlow 15s ease-in-out infinite;
+}
+@keyframes nanfuFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 工业网格 */
+.nanfu-grid-bg {
+  position: relative;
+  overflow: hidden;
+}
+.nanfu-grid-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  z-index: 0;
+  background: repeating-linear-gradient(90deg, #66666610 0, #66666610 1px, transparent 1px, transparent 50px),
+              repeating-linear-gradient(0deg, #66666610 0, #66666610 1px, transparent 1px, transparent 50px);
+  animation: gridMove 40s linear infinite;
+}
+.nanfu-grid-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: linear-gradient(90deg, transparent, #d9212110, transparent);
+  animation: gridScan 15s linear infinite;
+}
+@keyframes gridMove {
+  100% { transform: translate(-25%, -25%); }
+}
+@keyframes gridScan {
+  100% { left: 100%; }
+}
+.nanfu-grid-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 导航 */
+nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 1.5rem 3rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--nanfu-gray);
+  box-shadow: var(--shadow-base);
+  transition: var(--transition-advanced);
+}
+nav.scrolled {
+  padding: 1rem 3rem;
+  box-shadow: var(--shadow-hover);
+  background-color: rgba(255, 255, 255, 0.98);
+}
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.logo {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--nanfu-black);
+  letter-spacing: -0.5px;
+  transition: var(--transition-base);
+}
+.logo:hover {
+  transform: scale(1.05);
+}
+.logo span {
+  background: linear-gradient(90deg, var(--nanfu-red), var(--nanfu-red-deep));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 3rem;
+}
+.nav-links a {
+  text-decoration: none;
+  color: var(--nanfu-black);
+  font-weight: 500;
+  font-size: 1rem;
+  transition: var(--transition-advanced);
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--nanfu-red), var(--nanfu-red-deep));
+  transition: width 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.nav-links a:hover {
+  color: var(--nanfu-red);
+  transform: translateY(-2px);
+}
+.nav-links a:hover::after {
+  width: 100%;
+}
+.hamburger {
+  display: none;
+  font-size: 1.8rem;
+  font-weight: 900;
+  cursor: pointer;
+  user-select: none;
+}
+.hamburger:hover {
+  color: var(--nanfu-red);
+  transform: scale(1.1);
+}
+
+/* Hero */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  margin-top: 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-content {
+  max-width: 1200px;
+  text-align: center;
+}
+.hero h1 {
+  font-size: 7rem;
+  font-weight: 900;
+  line-height: 0.9;
+  margin-bottom: 2rem;
+  letter-spacing: -3px;
+}
+.hero h1 .no1 {
+  color: var(--nanfu-red);
+  display: block;
+  font-size: 8rem;
+  animation: numberPulse 3s ease-in-out infinite;
+}
+@keyframes numberPulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+.hero .slogan {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(90deg, #000, #333, var(--nanfu-red));
+  background-size: 200% 100%;
+  animation: textGradient 8s ease infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@keyframes textGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.hero .certification {
+  font-size: 1rem;
+  color: var(--nanfu-dark-gray);
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+  opacity: 0;
+  animation: fadeIn 1s ease 0.5s forwards;
+}
+
+/* 3大理由 */
+.reasons-section {
+  padding: 8rem 2rem;
+  background-color: var(--nanfu-gray);
+}
+.section-title {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 5rem;
+  letter-spacing: -1px;
+  overflow: hidden;
+}
+.char-animate {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: charFadeIn 0.5s ease forwards;
+}
+@keyframes charFadeIn {
+  to { opacity:1; transform:translateY(0); }
+}
+.reasons-grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 4rem;
+}
+.reason-card {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--nanfu-white);
+  border-radius: 8px;
+  box-shadow: var(--shadow-base);
+  transition: var(--transition-advanced);
+  transform: perspective(1000px) rotateY(0deg);
+}
+.reason-card:hover {
+  transform: perspective(1000px) rotateY(5deg) translateY(-10px);
+  box-shadow: var(--shadow-hover);
+  border: 1px solid var(--nanfu-red);
+}
+.reason-card .number {
+  font-size: 6rem;
+  font-weight: 900;
+  background: linear-gradient(180deg, var(--nanfu-red), var(--nanfu-red-deep));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height:1;
+  margin-bottom:1.5rem;
+}
+.reason-card h3 {
+  font-size: 2rem;
+  font-weight:900;
+  margin-bottom:1rem;
+}
+.reason-card p {
+  font-size:1.1rem;
+  color:var(--nanfu-dark-gray);
+  line-height:1.6;
+}
+
+/* 优势 */
+.advantage-section {
+  padding: 8rem 2rem;
+  max-width:1400px;
+  margin:0 auto;
+}
+.advantage-block {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4rem;
+  align-items:center;
+  margin-bottom:6rem;
+}
+.advantage-content h3 {
+  font-size:3.5rem;
+  font-weight:900;
+  line-height:1;
+  margin-bottom:2rem;
+}
+.advantage-content .highlight {
+  color:var(--nanfu-red);
+}
+.advantage-content p {
+  font-size:1.2rem;
+  line-height:1.8;
+  color:var(--nanfu-dark-gray);
+}
+.advantage-image {
+  width:100%;
+  height:400px;
+  background:url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3') center/cover no-repeat;
+  transition:var(--transition-advanced);
+  filter:grayscale(10%);
+}
+.advantage-image:hover {
+  transform:scale(1.02);
+  filter:grayscale(0%);
+  box-shadow:var(--shadow-hover);
+}
+
+/* 照片 */
+.photo-show-section {
+  padding:6rem 2rem 0;
+  max-width:1400px;
+  margin:0 auto;
+}
+.photo-title {
+  font-size:2.5rem;
+  font-weight:900;
+  text-align:center;
+  margin-bottom:3rem;
+}
+.photo-title span {
+  background:linear-gradient(90deg,var(--nanfu-red),var(--nanfu-red-deep));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.photo-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:2rem;
+}
+.photo-card {
+  border-radius:8px;
+  overflow:hidden;
+  box-shadow:var(--shadow-base);
+  transition:var(--transition-advanced);
+  height:250px;
+}
+.photo-card img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.photo-card:hover {
+  transform:translateY(-8px);
+  box-shadow:var(--shadow-hover);
+  border:1px solid var(--nanfu-red);
+}
+
+/* 部门 */
+.department-section {
+  padding:8rem 2rem;
+  background-color:var(--nanfu-gray);
+}
+.department-grid {
+  max-width:1400px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:2rem;
+}
+.department-card {
+  background:var(--nanfu-white);
+  padding:3rem 2rem;
+  border:1px solid #e0e0e0;
+  border-radius:8px;
+  transition:var(--transition-advanced);
+  transform:perspective(800px) rotateX(0deg);
+}
+.department-card:hover {
+  transform:perspective(800px) rotateX(5deg) translateY(-10px);
+  box-shadow:var(--shadow-hover);
+  border-color:var(--nanfu-red);
+}
+.department-card .serial-number {
+  font-size:1.5rem;
+  font-weight:900;
+  color:var(--nanfu-red);
+  margin-bottom:1.5rem;
+}
+.department-card h3 {
+  font-size:1.6rem;
+  font-weight:900;
+  margin-bottom:1.5rem;
+}
+.department-card p {
+  font-size:1rem;
+  line-height:1.7;
+  color:var(--nanfu-dark-gray);
+}
+
+/* 历程 */
+.history-section {
+  padding:8rem 2rem;
+  max-width:1400px;
+  margin:0 auto;
+}
+.timeline {
+  position:relative;
+  margin-top:4rem;
+}
+.timeline::before {
+  content:'';
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  width:2px;
+  height:100%;
+  background:linear-gradient(180deg,var(--nanfu-black),var(--nanfu-red),var(--nanfu-black));
+}
+.timeline-item {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4rem;
+  margin-bottom:4rem;
+  opacity:0;
+  transform:translateY(30px);
+  transition:var(--transition-advanced);
+}
+.timeline-item.visible {
+  opacity:1;
+  transform:translateY(0);
+}
+.timeline-item:nth-child(even) .timeline-content {
+  grid-column:2/3;
+  text-align:left;
+}
+.timeline-item:nth-child(odd) .timeline-content {
+  grid-column:1/2;
+  text-align:right;
+}
+.timeline-year {
+  font-size:3rem;
+  font-weight:900;
+  color:var(--nanfu-red);
+  margin-bottom:1rem;
+}
+.timeline-dot {
+  position:absolute;
+  left:50%;
+  top:1rem;
+  transform:translateX(-50%);
+  width:20px;
+  height:20px;
+  background:var(--nanfu-red);
+  border-radius:50%;
+  animation:dotPulse 3s infinite;
+}
+@keyframes dotPulse {
+  0%,100% { transform:translateX(-50%) scale(1); box-shadow:0 0 0 0 rgba(217,33,33,.5); }
+  50% { transform:translateX(-50%) scale(1.1); box-shadow:0 0 0 5px rgba(217,33,33,0); }
+}
+
+/* 报名 */
+.contact-section {
+  padding:8rem 2rem;
+  background:linear-gradient(180deg,#000,#111,#000);
+  color:var(--nanfu-white);
+  text-align:center;
+}
+.contact-section h2 {
+  font-size:4rem;
+  font-weight:900;
+  margin-bottom:2rem;
+}
+.contact-section h2 span {
+  color:var(--nanfu-red);
+}
+.contact-section .sub-title {
+  font-size:1.5rem;
+  margin-bottom:4rem;
+  color:#ccc;
+}
+.contact-grid {
+  max-width:1200px;
+  margin:0 auto 4rem;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:3rem;
+}
+.contact-item h4 {
+  font-size:1.5rem;
+  font-weight:900;
+  margin-bottom:1rem;
+  color:var(--nanfu-red);
+}
+.contact-item p {
+  font-size:1.1rem;
+  color:#ccc;
+}
+
+/* 问卷星表单 */
+.tencent-form-container {
+  max-width:800px;
+  margin:0 auto;
+  background:#1a1a1a;
+  border-radius:8px;
+  padding:2rem;
+}
+.form-tip {
+  color:#999;
+  font-size:0.9rem;
+  margin-bottom:1rem;
+  text-align:left;
+}
+.query-entry {
+  margin-top:2rem;
+  color:#ccc;
+}
+.query-link {
+  color:var(--nanfu-red);
+  text-decoration:underline;
+}
+
+footer {
+  background:#000;
+  color:#999;
+  text-align:center;
+  padding:3rem 2rem;
+  border-top:1px solid #333;
+}
+
+.fade-in {
+  opacity:0;
+  transform:translateY(50px);
+  transition:all 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.fade-in.visible {
+  opacity:1;
+  transform:translateY(0);
+}
+
+@media (max-width:768px) {
+  nav { padding:1rem 1.5rem; }
+  .nav-links {
+    display:none;
+    position:fixed;
+    top:70px;
+    left:0;
+    right:0;
+    background:#fff;
+    flex-direction:column;
+    padding:2rem;
+    gap:1.5rem;
+  }
+  .nav-links.active { display:flex; }
+  .hamburger { display:block; }
+  .hero h1 { font-size:3.5rem; }
+  .hero h1 .no1 { font-size:4rem; }
+  .hero .slogan { font-size:1.5rem; }
+  .section-title { font-size:2rem; }
+  .reasons-grid,.department-grid,.contact-grid,.photo-grid { grid-template-columns:1fr; }
+  .advantage-block { grid-template-columns:1fr; }
+  .timeline::before { left:20px; }
+  .timeline-item { grid-template-columns:1fr; }
+  .timeline-item:nth-child(even) .timeline-content,
+  .timeline-item:nth-child(odd) .timeline-content {
+    grid-column:1/-1;
+    text-align:left;
+    padding-left:50px;
+  }
+  .timeline-dot { left:11px; }
+  .contact-section h2 { font-size:2.5rem; }
+}
+@keyframes fadeIn { to{opacity:1;} }
+</style>
+</head>
+<body>
+
+<!-- 粒子背景 -->
+<canvas id="nanfuParticles"></canvas>
+
+<!-- 导航 -->
+<nav id="navbar">
+  <div class="nav-container">
+    <div class="logo"><span>信创</span>工坊社团</div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#advantage">核心优势</a></li>
+      <li><a href="#department">部门设置</a></li>
+      <li><a href="#history">发展历程</a></li>
+      <li><a href="#join">立即报名</a></li>
+    </ul>
+    <div class="hamburger" id="hamburger">≡</div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-dynamic-bg"></div>
+  <div class="hero-content" id="heroContent">
+    <h1><span class="no1">No.1</span> 信创工坊社团</h1>
+    <div class="slogan">信息 创新 创造 工坊</div>
+    <p class="certification">
+    </p>
+  </div>
+</section>
+
+<!-- 3大理由 -->
+<section class="reasons-section nanfu-grid-bg">
+  <h2 class="section-title" id="reasonTitle">3 Reasons to choose 信创工坊</h2>
+  <div class="reasons-grid">
+    <div class="reason-card fade-in">
+      <div class="number"></div>
+      <h3>成长收益</h3>
+      <p>远超校园平均水平的技能提升、实践机会与履历加成</p>
+    </div>
+    <div class="reason-card fade-in">
+      <div class="number"></div>
+      <h3>领先地位</h3>
+      <p>学识资源 汇聚校内高技能教师、学生、为学习保驾护航</p>
+    </div>
+    <div class="reason-card fade-in">
+      <div class="number"></div>
+      <h3>资源沉淀</h3>
+      <p>技术应用 拥有web 单片机 硬件技术等项目</p>
+    </div>
+  </div>
+</section>
+
+<!-- 优势 -->
+<section class="advantage-section" id="advantage">
+  <div class="advantage-block fade-in">
+    <div class="advantage-content">
+      <h3>3大核心<span class="highlight">成长体系</span></h3>
+      <p>超科学学习流程：零基础技能培训、学长学姐1v1带教，快速掌握新媒体运营、活动策划、商务谈判等硬核技能，为简历加分。</p>
+      <p>超实际经验积累：全流程参与大型活动策划与执行，积累可落地的实践经验，提升职场核心竞争力，毕业求职快人一步。</p>
+      <p>超广阔社交圈层：12年校友资源沉淀，优质人脉圈子，打破专业与年级壁垒，收获终身受益的友谊与资源。</p>
+    </div>
+    <div class="advantage-image"></div>
+  </div>
+</section>
+
+<!-- 照片 -->
+<section class="photo-show-section fade-in">
+  <h2 class="photo-title">社团 <span>精彩瞬间</span></h2>
+  <div class="photo-grid">
+    <div class="photo-card"><img src="微信图片_20260415214025_44_16.jpg "alt="活动1"></div>
+    <div class="photo-card"><img src="微信图片_20260415214026_45_16.jpg "alt="活动2"></div>
+    <div class="photo-card"><img src="微信图片_20260415214027_46_16.jpg"alt="活动3"></div>
+    <div class="photo-card"><img src="微信图片_20260415214029_47_16.jpg"alt="活动4"></div>
+  </div>
+</section>
+
+<!-- 部门 -->
+<section class="department-section nanfu-grid-bg" id="department">
+  <h2 class="section-title" id="deptTitle">Our Departments</h2>
+  <div class="department-grid">
+    <div class="department-card fade-in">
+      <div class="serial-number">01</div>
+      <h3>办公组织部</h3>
+      <p>社团核心“大管家”，负责日常管理、会议记录、成员考勤、活动统筹安排。锻炼统筹规划与细节把控能力。</p>
+    </div>
+    <div class="department-card fade-in">
+      <div class="serial-number">02</div>
+      <h3>宣传策划部</h3>
+      <p>社团创意担当，负责文案撰写、海报设计、短视频剪辑、公众号运营、活动创意策划。</p>
+    </div>
+    <div class="department-card fade-in">
+      <div class="serial-number">03</div>
+      <h3>活动执行部</h3>
+      <p>社团现场指挥官，负责活动现场布置、流程把控、人员协调、应急处理。提升临场应变与团队协作能力。</p>
+    </div>
+    <div class="department-card fade-in">
+      <div class="serial-number">04</div>
+      <h3>外联部</h3>
+      <p>社团对外窗口，负责校企合作、活动赞助对接、跨校交流。锻炼商务谈判与沟通表达能力。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 历程 -->
+<section class="history-section" id="history">
+  <h2 class="section-title" id="historyTitle">Our Development History</h2>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-content">
+        <div class="timeline-year">2023</div>
+        <p>沧州市繁星电子工作室（信创工坊前身）由社长成立</p>
+      </div>
+      <div class="timeline-dot"></div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-content">
+        <div class="timeline-year">2024</div>
+        <p>沧州市繁星电子工作室、沧州市云暮通讯与沧州市电信公司合作成立电子产品售卖与检修线下门店开办业务</p>
+      </div>
+      <div class="timeline-dot"></div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-content">
+        <div class="timeline-year">2025</div>
+        <p>繁星电子于山东工程职业技术大学北校区正式成立信创工坊社团隶属于信息技术学院</p>
+      </div>
+      <div class="timeline-dot"></div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-content">
+        <div class="timeline-year">2026</div>
+        <p>故事并未结束 未来在你我手中………</p>
+      </div>
+      <div class="timeline-dot"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 报名 -->
+<section class="contact-section" id="join">
+  <h2>加入我们，<span>解锁无限可能</span></h2>
+  <p class="sub-title">不限年级、不限专业、不限经验，零基础友好</p>
+  <div class="contact-grid">
+    <div class="contact-item">
+      <h4>线上报名</h4>
+      <p>添加负责人微信<br>15933275995<br>回复“纳新+姓名+学院”</p>
+    </div>
+    
+  </div>
+
+  <!-- 问卷星表单 -->
+  <div class="tencent-form-container">
+    <div class="form-tip">填写以下表单完成线上报名，提交后可查询报名状态</div>
+    <iframe src="https://v.wjx.cn/vm/wrUAZCJ.aspx" width="100%" height="600" frameborder="0"></iframe>
+  </div>
+
+  <div class="query-entry">
+    已提交报名？<a href="#" class="query-link">点击查询报名状态</a>
+  </div>
+</section>
+
+<footer>
+  <p>以热爱为名，赴成长之约 | 信创工坊期待你的加入</p>
+  <p>© 2026 信创工坊社团. All Rights Reserved.</p>
+</footer>
+
+<script>
+// 导航滚动
+window.addEventListener('scroll', function() {
+  const navbar = document.getElementById('navbar');
+  if (window.scrollY > 50) {
+    navbar.classList.add('scrolled');
+  } else {
+    navbar.classList.remove('scrolled');
+  }
+  const heroContent = document.getElementById('heroContent');
+  if (heroContent && scrollY < window.innerHeight) {
+    heroContent.style.transform = `translateY(${scrollY * 0.1}px)`;
+  }
+});
+
+// 汉堡菜单
+const hamburger = document.getElementById('hamburger');
+const navLinks = document.getElementById('navLinks');
+hamburger.addEventListener('click', function() {
+  navLinks.classList.toggle('active');
+  hamburger.innerHTML = navLinks.classList.contains('active') ? '×' : '≡';
+});
+
+// 平滑滚动
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    navLinks.classList.remove('active');
+    hamburger.innerHTML = '≡';
+    document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior:'smooth' });
+  });
+});
+
+// 滚动渐入
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => e.isIntersecting && e.target.classList.add('visible'));
+}, { threshold:0.1, rootMargin:'0px 0px -50px 0px' });
+document.querySelectorAll('.fade-in,.timeline-item').forEach(el => observer.observe(el));
+
+// 逐字动画
+function createCharAnimation(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const t = el.textContent;
+  el.textContent = '';
+  Array.from(t).forEach((c,i) => {
+    const s = document.createElement('span');
+    s.className = 'char-animate';
+    s.style.animationDelay = i*0.05+'s';
+    s.textContent = c===' ' ? '\u00A0' : c;
+    el.appendChild(s);
+  });
+}
+window.addEventListener('load', () => {
+  createCharAnimation('reasonTitle');
+  createCharAnimation('deptTitle');
+  createCharAnimation('historyTitle');
+});
+
+// 南孚粒子背景
+(function() {
+  const canvas = document.getElementById('nanfuParticles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  const mouse = {x:null,y:null,radius:150};
+  function resize() { canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+  resize(); window.addEventListener('resize',resize);
+  window.addEventListener('mousemove',e=>{mouse.x=e.x;mouse.y=e.y});
+  const cfg = {
+    particleNum:50, speed:0.3,
+    colors:['#fff','#d92121','#d9212140'],
+    radius:[1,2], lineDistance:100
+  };
+  class P{
+    constructor(){
+      this.x=Math.random()*canvas.width;
+      this.y=Math.random()*canvas.height;
+      this.vx=(Math.random()-0.5)*cfg.speed;
+      this.vy=(Math.random()-0.5)*cfg.speed;
+      this.color=cfg.colors[Math.floor(Math.random()*cfg.colors.length)];
+      this.r=Math.random()*(cfg.radius[1]-cfg.radius[0])+cfg.radius[0];
+    }
+    update(){
+      if(this.x<0||this.x>canvas.width)this.vx*=-1;
+      if(this.y<0||this.y>canvas.height)this.vy*=-1;
+      if(mouse.x&&mouse.y){
+        const dx=mouse.x-this.x;
+        const dy=mouse.y-this.y;
+        const d=Math.hypot(dx,dy);
+        if(d<mouse.radius){
+          const f=(mouse.radius-d)/mouse.radius;
+          this.x-=(dx/d)*f*1.5;
+          this.y-=(dy/d)*f*1.5;
+        }
+      }
+      this.x+=this.vx;
+      this.y+=this.vy;
+    }
+    draw(){
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+      ctx.fillStyle=this.color;
+      ctx.fill();
+    }
+  }
+  function connect(){
+    for(let a=0;a<particles.length;a++){
+      for(let b=a;b<particles.length;b++){
+        const dx=particles[a].x-particles[b].x;
+        const dy=particles[a].y-particles[b].y;
+        const d=Math.hypot(dx,dy);
+        if(d<cfg.lineDistance){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(217,33,33,${(1-d/cfg.lineDistance)*0.2})`;
+          ctx.lineWidth=0.5;
+          ctx.moveTo(particles[a].x,particles[a].y);
+          ctx.lineTo(particles[b].x,particles[b].y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+  function init(){
+    particles=[];
+    for(let i=0;i<cfg.particleNum;i++)particles.push(new P());
+  }
+  function anim(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{p.update();p.draw()});
+    connect();
+    requestAnimationFrame(anim);
+  }
+  init(); anim();
+  window.addEventListener('mouseout',()=>{mouse.x=null;mouse.y=null});
+})();
+</script>
+</body>
+</html>
+
+
+
